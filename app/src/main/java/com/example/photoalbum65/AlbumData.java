@@ -6,7 +6,7 @@ import java.util.Collection;
 
 
 public class AlbumData implements Serializable{
-
+ //class
     private static final long serialVersionUID = 1L;
     public ArrayList<PhotoData> photos;
     public String name;
