@@ -28,16 +28,21 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Tab1Fragment extends Fragment {
+    public static final String storeFile = "save.dat";
     private static final String TAG = "Tab1Fragment";
     private Button createAlbum;
+    private Button Open_Album;
     public static UserData data;
     public static String selected_album = "";
     public static Context context;
@@ -49,8 +54,30 @@ public class Tab1Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab1_fragment,container,false);
         createAlbum = (Button) view.findViewById(R.id.createAlb);
-        context = getContext();
-        data = UserData.readData(context);
+        Open_Album = (Button) view.findViewById(R.id.Open_Album);
+        this.context = getActivity();
+        ObjectInputStream objectIn = null;
+        UserData user = null;
+        try {
+            FileInputStream fileIn = context.getApplicationContext().openFileInput(storeFile);
+            objectIn = new ObjectInputStream(fileIn);
+            user = (UserData)objectIn.readObject();
+            objectIn.close();
+            fileIn.close();
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if (objectIn != null) {
+                try {
+                    objectIn.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        data = user;
         if(data == null){
             data = new UserData("Current User");
         }
@@ -90,13 +117,45 @@ public class Tab1Fragment extends Fragment {
                 return;
             }
         });
+        Open_Album.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view1){
+                if(selected_album.isEmpty()){
+                    Toast.makeText(context, "No Album selected",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent = new Intent(getActivity(), AlbumActivity.class);
+                intent.putExtra("album", selected_album);
+                startActivity(intent);
+            }
+
+        });
+
 
         return view;
     }
     @Override
     public void onStop(){
         super.onStop();
-        UserData.writeData(data, context); // write to persistent storage
+        ObjectOutputStream objectOut = null;
+        try {
+            FileOutputStream fileOut = context.openFileOutput(storeFile, Activity.MODE_PRIVATE);
+            objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeObject(data);
+            fileOut.getFD().sync();
+            fileOut.close();
+            objectOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (objectOut != null) {
+                try {
+                    objectOut.close();
+                } catch (IOException e) {
+
+                }
+            }
+        } // write to persistent storage
     }
     @Override
     public void onResume(){
@@ -106,4 +165,79 @@ public class Tab1Fragment extends Fragment {
             Tab1Fragment.adapter.notifyDataSetChanged();
         }
     }
+}
+class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder> {
+    List<AlbumData> albumData;
+    Context context;
+    int selectedPosition = -1;
+    public RVAlbumAdapter(Context context) {
+        albumData = new ArrayList<>(MainActivity.data.albums.values());
+        this.context = context;
+    }
+    public static class AlbumViewHolder extends RecyclerView.ViewHolder {
+        CardView cardView ;
+        TextView albumName;
+        TextView numPhotos;
+        ImageView firstPhoto;
+
+        AlbumViewHolder(View itemView) {
+            super(itemView);
+            cardView = (CardView) itemView.findViewById(R.id.cv);
+            albumName = (TextView) itemView.findViewById(R.id.album_name);
+            numPhotos = (TextView) itemView.findViewById(R.id.num_photos);
+            firstPhoto = (ImageView) itemView.findViewById(R.id.first_photo);
+        }
+    }
+    @NonNull
+    @Override
+    public AlbumViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.album_card_layout, viewGroup, false);
+        AlbumViewHolder albumViewHolder = new AlbumViewHolder(v);
+        return albumViewHolder;
+    }
+    @Override
+    public void onBindViewHolder(@NonNull final AlbumViewHolder albumViewHolder, final int i) {
+        albumViewHolder.albumName.setText(albumData.get(i).name);
+        albumViewHolder.numPhotos.setText(albumData.get(i).photos.size() + "");
+        if (albumData.get(i).photos.size() <= 0) {
+            albumViewHolder.firstPhoto.setImageResource(R.drawable.ic_launcher_background); // default android logo
+        } else {
+            Uri uri = Uri.parse((albumData.get(i).photos.get(0).location));
+            int width = (int) (context.getResources().getDisplayMetrics().widthPixels / 4);
+            Glide.with(context).load(uri).apply(new RequestOptions().centerCrop().override(width, width)).into(albumViewHolder.firstPhoto);
+        }
+        if (selectedPosition == i) {
+            albumViewHolder.cardView.setBackgroundColor(Color.parseColor("#ADD8E6"));
+        } else {
+            albumViewHolder.cardView.setBackgroundColor(Color.parseColor("#ffffff"));
+        }
+        albumViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("tag", i + "");
+                selectedPosition = i;
+                Tab1Fragment.selected_album = albumData.get(i).name;
+                notifyDataSetChanged();
+            }
+        });
+        albumViewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                //Toast.makeText(context,"It stopped crashing", Toast.LENGTH_SHORT).show();
+                selectedPosition = i;
+                Tab1Fragment.selected_album = albumData.get(i).name;
+                notifyDataSetChanged();
+                Intent intent = new Intent(context, AlbumActivity.class);
+                intent.putExtra("album", albumData.get(i).name);
+                context.startActivity(intent);
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return albumData.size();
+    }
+
 }

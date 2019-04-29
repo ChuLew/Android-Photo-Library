@@ -13,7 +13,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 public class UserData implements Serializable {
-    public static final String storeFile = "photoAlbumData.dat";
     private static final long serialVersionUID = 1L;
     public String userName;
     public HashMap<String, AlbumData> albums;
@@ -33,50 +32,5 @@ public class UserData implements Serializable {
         tmp.name = newName;
         albums.put(newName, tmp);
     }
-    public static void writeData(UserData u, Context context) {
-        ObjectOutputStream objectOut = null;
-        try {
-            FileOutputStream fileOut = context.openFileOutput(storeFile, Activity.MODE_PRIVATE);
-            objectOut = new ObjectOutputStream(fileOut);
-            objectOut.writeObject(u);
-            fileOut.getFD().sync();
-            fileOut.close();
-            objectOut.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (objectOut != null) {
-                try {
-                    objectOut.close();
-                } catch (IOException e) {
-                    // do nowt
-                }
-            }
-        }
 
-    }
-    public static UserData readData(Context context) {
-        ObjectInputStream objectIn = null;
-        UserData user = null;
-        try {
-            FileInputStream fileIn = context.getApplicationContext().openFileInput(storeFile);
-            objectIn = new ObjectInputStream(fileIn);
-            user = (UserData)objectIn.readObject();
-            objectIn.close();
-            fileIn.close();
-        } catch (FileNotFoundException e) {
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if (objectIn != null) {
-                try {
-                    objectIn.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-        return user;
-    }
 }

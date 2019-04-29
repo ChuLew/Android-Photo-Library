@@ -25,5 +25,13 @@
         android:layout_height="438dp"
         android:layout_below="@id/textTab1" />
 
+    <Button
+        android:id="@+id/Open_Album"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight = "true"
+        android:layout_alignParentTop="true"
+        android:text="Open Album" />
+
 
 </RelativeLayout>
