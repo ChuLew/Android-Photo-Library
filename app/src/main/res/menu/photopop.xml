@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/displayPhoto"
+        android:title="Display" />
+    <item
+        android:id="@+id/deletePhoto"
+        android:title="Delete Photo"/>
+    <item
+        android:id="@+id/movephoto"
+        android:title="Move Photo"/>
+    <item
+        android:id="@+id/copyphoto"
+        android:title="Copy Photo"/>
+
+
+
+</menu>

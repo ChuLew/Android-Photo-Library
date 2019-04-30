@@ -121,20 +121,6 @@ public class Tab1Fragment extends Fragment {
                 return;
             }
         });
-//        Open_Album.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View view1){
-//                if(selected_album.isEmpty()){
-//                    Toast.makeText(context, "No Album selected",Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                Intent intent = new Intent(getActivity(), AlbumActivity.class);
-//                intent.putExtra("album", selected_album);
-//                startActivity(intent);
-//            }
-//
-//        });
-
 
         return view;
     }
@@ -159,7 +145,7 @@ public class Tab1Fragment extends Fragment {
 
                 }
             }
-        } // write to persistent storage
+        }
     }
     @Override
     public void onResume(){
@@ -167,26 +153,6 @@ public class Tab1Fragment extends Fragment {
         if(data != null){
             Tab1Fragment.adapter.albumData = new ArrayList<>(data.albums.values());
             Tab1Fragment.adapter.notifyDataSetChanged();
-        }
-    }
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        menu.setHeaderTitle("Choose your option");
-        getActivity().getMenuInflater().inflate(R.menu.meniu, menu);
-    }
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.option_1:
-                Toast.makeText(context, "Option 1 selected", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.option_2:
-                Toast.makeText(context, "Option 2 selected", Toast.LENGTH_SHORT).show();
-                return true;
-            default:
-                return super.onContextItemSelected(item);
         }
     }
 }
