@@ -51,7 +51,7 @@ public class AlbumActivity extends AppCompatActivity {
         addPhoto = (FloatingActionButton)findViewById(R.id.fab);
         recView = findViewById(R.id.recyclerView);
         album_name = getIntent().getStringExtra("album");
-        albumData = MainActivity.data.albums.get(album_name);
+        albumData = Tab1Fragment.data.albums.get(album_name);
         layoutManager = new GridLayoutManager(getApplicationContext(),3);
         recView.setLayoutManager(layoutManager);
         recyclerViewAdapter = new RVPhotoAdapter(this);
@@ -163,9 +163,26 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
                         switch (item.getItemId()) {
                             case R.id.displayPhoto:
                                 Toast.makeText(context,"display photo", Toast.LENGTH_SHORT).show();
+                                int selected = selectedPosition;
+                                if(selected < 0){
+                                    Toast.makeText(context, "No Image selected", Toast.LENGTH_SHORT).show();
+                                    return false;
+                                }
+                                Intent intent = new Intent(context, PhotoActivity.class);
+                                intent.putExtra("index", selected);
+                                context.startActivity(intent);
                                 return true;
                             case R.id.deletePhoto:
                                 Toast.makeText(context,"deleted photo", Toast.LENGTH_SHORT).show();
+                                selected = selectedPosition;
+                                if(selected < 0){
+                                    Toast.makeText(context, "No Image selected", Toast.LENGTH_SHORT).show();
+                                    return false ;
+                                }
+                                AlbumActivity.albumData.photos.remove(selected);
+                                photoData = AlbumActivity.albumData.photos;
+                                notifyDataSetChanged();
+                                selectedPosition = -1;
                                 return true;
                             case R.id.movephoto:
                                 Toast.makeText(context,"moved photo", Toast.LENGTH_SHORT).show();

@@ -51,13 +51,11 @@ public class Tab1Fragment extends Fragment {
     public static Context context;
     public static RecyclerView rv;
     public static RVAlbumAdapter adapter;
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab1_fragment,container,false);
         createAlbum = view.findViewById(R.id.fab);
-        //Open_Album = (Button) view.findViewById(R.id.Open_Album);
         this.context = getActivity();
         ObjectInputStream objectIn = null;
         UserData user = null;
@@ -205,9 +203,9 @@ class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder
         albumViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectedPosition = i;
-                Tab1Fragment.selected_album = albumData.get(i).name;
-                notifyDataSetChanged();
+                //selectedPosition = i;
+                //Tab1Fragment.selected_album = albumData.get(i).name;
+                //notifyDataSetChanged();
                 Intent intent = new Intent(context, AlbumActivity.class);
                 intent.putExtra("album", albumData.get(i).name);
                 context.startActivity(intent);
