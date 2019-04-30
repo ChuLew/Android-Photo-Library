@@ -19,4 +19,12 @@
         android:id="@+id/btnTEST2"
         android:text="TESTBTN 2"/>
 
+    <AnalogClock
+        android:id="@+id/analogClock"
+        android:layout_width="186dp"
+        android:layout_height="269dp"
+        android:dial="@drawable/clock_dial"
+        android:hand_hour="@drawable/clock_hour"
+        android:hand_minute="@drawable/clock_minute"
+        />
 </RelativeLayout>

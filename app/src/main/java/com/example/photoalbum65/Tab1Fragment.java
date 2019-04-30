@@ -16,12 +16,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,6 +88,7 @@ public class Tab1Fragment extends Fragment {
         rv.setLayoutManager(new LinearLayoutManager(context));
         adapter = new RVAlbumAdapter(context);
         rv.setAdapter(adapter);
+        registerForContextMenu(rv);
 
         createAlbum.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,6 +169,26 @@ public class Tab1Fragment extends Fragment {
             Tab1Fragment.adapter.notifyDataSetChanged();
         }
     }
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.setHeaderTitle("Choose your option");
+        getActivity().getMenuInflater().inflate(R.menu.meniu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.option_1:
+                Toast.makeText(context, "Option 1 selected", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.option_2:
+                Toast.makeText(context, "Option 2 selected", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
 }
 class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder> {
     List<AlbumData> albumData;
@@ -197,6 +221,7 @@ class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder
     }
     @Override
     public void onBindViewHolder(@NonNull final AlbumViewHolder albumViewHolder, final int i) {
+
         albumViewHolder.albumName.setText(albumData.get(i).name);
         albumViewHolder.numPhotos.setText(albumData.get(i).photos.size() + "");
         if (albumData.get(i).photos.size() <= 0) {
@@ -214,22 +239,43 @@ class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder
         albumViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("tag", i + "");
-                selectedPosition = i;
-                Tab1Fragment.selected_album = albumData.get(i).name;
-                notifyDataSetChanged();
-            }
-        });
-        albumViewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                //Toast.makeText(context,"It stopped crashing", Toast.LENGTH_SHORT).show();
                 selectedPosition = i;
                 Tab1Fragment.selected_album = albumData.get(i).name;
                 notifyDataSetChanged();
                 Intent intent = new Intent(context, AlbumActivity.class);
                 intent.putExtra("album", albumData.get(i).name);
                 context.startActivity(intent);
+            }
+        });
+        albumViewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                PopupMenu popup = new PopupMenu(context,v);
+                //Inflating the Popup using xml file
+                popup.getMenuInflater().inflate(R.menu.poupup_menu, popup.getMenu());
+
+                //registering popup with OnMenuItemClickListener
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch(item.getItemId()){
+                            case R.id.open:
+                                Toast.makeText(context,"You tried to open album", Toast.LENGTH_SHORT).show();
+                                return true;
+                            case R.id.rename:
+                                Toast.makeText(context,"You tried to rename album", Toast.LENGTH_SHORT).show();
+                                return true;
+                            case R.id.close:
+                                Toast.makeText(context,"You tried to delete album", Toast.LENGTH_SHORT).show();
+                                return true;
+                            default:
+                                return false;
+
+                        }
+                    }
+                });
+
+                popup.show();//showing popup menu
                 return true;
             }
         });
