@@ -9,13 +9,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -44,7 +44,7 @@ import java.util.List;
 public class Tab1Fragment extends Fragment {
     public static final String storeFile = "save.dat";
     private static final String TAG = "Tab1Fragment";
-    private Button createAlbum;
+    private FloatingActionButton createAlbum;
     private Button Open_Album;
     public static UserData data;
     public static String selected_album = "";
@@ -56,8 +56,8 @@ public class Tab1Fragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab1_fragment,container,false);
-        createAlbum = (Button) view.findViewById(R.id.createAlb);
-        Open_Album = (Button) view.findViewById(R.id.Open_Album);
+        createAlbum = view.findViewById(R.id.fab);
+        //Open_Album = (Button) view.findViewById(R.id.Open_Album);
         this.context = getActivity();
         ObjectInputStream objectIn = null;
         UserData user = null;
@@ -121,19 +121,19 @@ public class Tab1Fragment extends Fragment {
                 return;
             }
         });
-        Open_Album.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view1){
-                if(selected_album.isEmpty()){
-                    Toast.makeText(context, "No Album selected",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Intent intent = new Intent(getActivity(), AlbumActivity.class);
-                intent.putExtra("album", selected_album);
-                startActivity(intent);
-            }
-
-        });
+//        Open_Album.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View view1){
+//                if(selected_album.isEmpty()){
+//                    Toast.makeText(context, "No Album selected",Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                Intent intent = new Intent(getActivity(), AlbumActivity.class);
+//                intent.putExtra("album", selected_album);
+//                startActivity(intent);
+//            }
+//
+//        });
 
 
         return view;
@@ -225,7 +225,7 @@ class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder
         albumViewHolder.albumName.setText(albumData.get(i).name);
         albumViewHolder.numPhotos.setText(albumData.get(i).photos.size() + "");
         if (albumData.get(i).photos.size() <= 0) {
-            albumViewHolder.firstPhoto.setImageResource(R.drawable.ic_launcher_background); // default android logo
+            albumViewHolder.firstPhoto.setImageResource(R.mipmap.emptyimage); // default android logo
         } else {
             Uri uri = Uri.parse((albumData.get(i).photos.get(0).location));
             int width = (int) (context.getResources().getDisplayMetrics().widthPixels / 4);
@@ -250,6 +250,9 @@ class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder
         albumViewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                selectedPosition = i;
+                Tab1Fragment.selected_album = albumData.get(i).name;
+                notifyDataSetChanged();
 
                 PopupMenu popup = new PopupMenu(context,v);
                 //Inflating the Popup using xml file
@@ -260,13 +263,58 @@ class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder
                     public boolean onMenuItemClick(MenuItem item) {
                         switch(item.getItemId()){
                             case R.id.open:
-                                Toast.makeText(context,"You tried to open album", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context,"Opened Album " + albumData.get(i).name, Toast.LENGTH_SHORT).show();
+                                selectedPosition = i;
+                                Tab1Fragment.selected_album = albumData.get(i).name;
+                                notifyDataSetChanged();
+                                Intent intent = new Intent(context, AlbumActivity.class);
+                                intent.putExtra("album", albumData.get(i).name);
+                                context.startActivity(intent);
                                 return true;
                             case R.id.rename:
-                                Toast.makeText(context,"You tried to rename album", Toast.LENGTH_SHORT).show();
+                                final EditText input = new EditText(context);
+                                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+                                new AlertDialog.Builder(context)
+                                        .setTitle("Album New Name?")
+                                        .setView(input)
+                                        .setMessage("Name:")
+                                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                if(input.getText().toString().isEmpty()){
+                                                    Toast.makeText(context,"Empty Album Name not allowed", Toast.LENGTH_SHORT).show();
+                                                    return;
+                                                }
+                                                String name = input.getText().toString();
+                                                if(Tab1Fragment.data.albums.containsKey(name)){
+                                                    Toast.makeText(context,"Existing Album Name present, Try Again!", Toast.LENGTH_SHORT).show();
+                                                    return;
+                                                }
+                                                Tab1Fragment.data.renameAlbum(Tab1Fragment.selected_album, name);
+                                                Tab1Fragment.selected_album = name;
+                                                Tab1Fragment.adapter.albumData = new ArrayList<>(Tab1Fragment.data.albums.values());
+                                                Tab1Fragment.adapter.notifyDataSetChanged();
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                            }
+                                        })
+                                        .create()
+                                        .show();
                                 return true;
                             case R.id.close:
-                                Toast.makeText(context,"You tried to delete album", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context,"You have deleted " +  albumData.get(i).name, Toast.LENGTH_SHORT).show();
+                                if(Tab1Fragment.selected_album.isEmpty()){
+                                    Toast.makeText(context,"No Selected Album", Toast.LENGTH_SHORT).show();
+                                    return false;
+                                }
+                                Tab1Fragment.data.albums.remove(Tab1Fragment.selected_album);
+                                Tab1Fragment.adapter.albumData = new ArrayList<>(Tab1Fragment.data.albums.values());
+                                Tab1Fragment.adapter.notifyDataSetChanged();
+                                Tab1Fragment.adapter.selectedPosition = -1;
+                                Tab1Fragment.selected_album = "";
                                 return true;
                             default:
                                 return false;
@@ -274,8 +322,7 @@ class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder
                         }
                     }
                 });
-
-                popup.show();//showing popup menu
+                popup.show();
                 return true;
             }
         });
