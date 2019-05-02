@@ -56,6 +56,7 @@ public class Tab1Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tab1_fragment,container,false);
         createAlbum = view.findViewById(R.id.fab);
+        createAlbum.setImageResource(R.drawable.pluser);
         this.context = getActivity();
         ObjectInputStream objectIn = null;
         UserData user = null;

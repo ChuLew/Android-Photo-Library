@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_add"
+        android:title="@string/menu_search"
+        android:icon="@drawable/edit"/>
+    <item android:id="@+id/action_copy"
+        android:title="@string/menu_settings"
+        android:icon="@drawable/copyer"/>
+    <item android:id="@+id/action_move"
+        android:title="@string/menu_navigation"
+        android:icon="@drawable/lefter"/>
+</menu>

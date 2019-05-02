@@ -2,37 +2,30 @@ package com.example.photoalbum65;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.photoalbum65.ui.main.PhotoActivity;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 public class AlbumActivity extends AppCompatActivity {
@@ -49,6 +42,7 @@ public class AlbumActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album);
         addPhoto = (FloatingActionButton)findViewById(R.id.fab);
+        addPhoto.setImageResource(R.drawable.pluser);
         recView = findViewById(R.id.recyclerView);
         album_name = getIntent().getStringExtra("album");
         albumData = Tab1Fragment.data.albums.get(album_name);
@@ -56,7 +50,6 @@ public class AlbumActivity extends AppCompatActivity {
         recView.setLayoutManager(layoutManager);
         recyclerViewAdapter = new RVPhotoAdapter(this);
         recView.setAdapter(recyclerViewAdapter);
-
         addPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -143,7 +136,7 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
             public void onClick(View v){
                 selectedPosition = i;
                 notifyDataSetChanged();
-                Intent intent = new Intent(context, PhotoActivity.class);
+                Intent intent = new Intent(context, PhoActivity.class);
                 intent.putExtra("index",i);
                 context.startActivity(intent);
 
@@ -155,9 +148,7 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
                 selectedPosition = i;
                 notifyDataSetChanged();
                 PopupMenu popup = new PopupMenu(context, v);
-                //Inflating the Popup using xml file
                 popup.getMenuInflater().inflate(R.menu.photopop, popup.getMenu());
-                //registering popup with OnMenuItemClickListener
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
@@ -168,7 +159,7 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
                                     Toast.makeText(context, "No Image selected", Toast.LENGTH_SHORT).show();
                                     return false;
                                 }
-                                Intent intent = new Intent(context, PhotoActivity.class);
+                                Intent intent = new Intent(context, AlbumData.PhotoActivity.class);
                                 intent.putExtra("index", selected);
                                 context.startActivity(intent);
                                 return true;
