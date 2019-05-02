@@ -1,12 +1,14 @@
 package com.example.photoalbum65;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -15,14 +17,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PhoActivity extends AppCompatActivity {
     public ViewPager viewPager;
@@ -54,6 +59,43 @@ public class PhoActivity extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     case R.id.action_copy:
+                        int selected = selectedPosition;
+                        if (Tab1Fragment.data.albums.size() <= 1) {
+                            Toast.makeText(context, "Only 1 Album, Cant move Photo to itself!", Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                        List<String> lister = new ArrayList<String>();
+                        for (AlbumData a : Tab1Fragment.data.albums.values()) {
+                            if (!a.name.equals(AlbumActivity.albumData.name)) {
+                                lister.add(a.name);
+                            }
+                        }
+                        final ArrayAdapter<String> adp = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, lister);
+                        final Spinner sp = new Spinner(context);
+                        sp.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        sp.setAdapter(adp);
+
+                        new AlertDialog.Builder(context).setTitle("Move to which album?").setView(sp).setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String album = sp.getSelectedItem().toString();
+                                PhotoData p = AlbumActivity.albumData.photos.get(selectedPosition);
+                                Tab1Fragment.data.albums.get(album).photos.add(p);
+                                int selected = selectedPosition;
+                                AlbumActivity.albumData.photos.remove(selected);
+                                photoData = AlbumActivity.albumData.photos;
+                                notifyDataSetChanged();
+                                selectedPosition = -1;
+                                Toast.makeText(context, "Moved photo to album: " + album, Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
                     case R.id.action_move:
                         break;

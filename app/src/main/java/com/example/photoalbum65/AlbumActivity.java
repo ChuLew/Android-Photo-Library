@@ -2,11 +2,13 @@ package com.example.photoalbum65;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
@@ -16,8 +18,11 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -26,6 +31,7 @@ import com.bumptech.glide.request.RequestOptions;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlbumActivity extends AppCompatActivity {
@@ -153,39 +159,113 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.displayPhoto:
-                                Toast.makeText(context,"display photo", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "display photo", Toast.LENGTH_SHORT).show();
                                 int selected = selectedPosition;
-                                if(selected < 0){
-                                    Toast.makeText(context, "No Image selected", Toast.LENGTH_SHORT).show();
-                                    return false;
-                                }
-                                Intent intent = new Intent(context, AlbumData.PhotoActivity.class);
+                                Intent intent = new Intent(context, PhoActivity.class);
                                 intent.putExtra("index", selected);
                                 context.startActivity(intent);
                                 return true;
                             case R.id.deletePhoto:
-                                Toast.makeText(context,"deleted photo", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "deleted photo", Toast.LENGTH_SHORT).show();
                                 selected = selectedPosition;
-                                if(selected < 0){
-                                    Toast.makeText(context, "No Image selected", Toast.LENGTH_SHORT).show();
-                                    return false ;
-                                }
                                 AlbumActivity.albumData.photos.remove(selected);
                                 photoData = AlbumActivity.albumData.photos;
                                 notifyDataSetChanged();
                                 selectedPosition = -1;
                                 return true;
                             case R.id.movephoto:
-                                Toast.makeText(context,"moved photo", Toast.LENGTH_SHORT).show();
+                                selected = selectedPosition;
+                                if (Tab1Fragment.data.albums.size() <= 1) {
+                                    Toast.makeText(context, "Only 1 Album, Cant move Photo to itself!", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
+                                List<String> lister = new ArrayList<String>();
+                                for (AlbumData a : Tab1Fragment.data.albums.values()) {
+                                    if (!a.name.equals(AlbumActivity.albumData.name)) {
+                                        lister.add(a.name);
+                                    }
+                                }
+                                final ArrayAdapter<String> adp = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, lister);
+                                final Spinner sp = new Spinner(context);
+                                sp.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                                sp.setAdapter(adp);
+
+                                new AlertDialog.Builder(context).setTitle("Move to which album?").setView(sp).setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                String album = sp.getSelectedItem().toString();
+                                                PhotoData p = AlbumActivity.albumData.photos.get(selectedPosition);
+                                                Tab1Fragment.data.albums.get(album).photos.add(p);
+                                                int selected = selectedPosition;
+                                                AlbumActivity.albumData.photos.remove(selected);
+                                                photoData = AlbumActivity.albumData.photos;
+                                                notifyDataSetChanged();
+                                                selectedPosition = -1;
+                                                Toast.makeText(context, "Moved photo to album: " + album, Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                            }
+                                        })
+                                        .create()
+                                        .show();
                                 return true;
                             case R.id.copyphoto:
-                                Toast.makeText(context,"copied photo", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "copied photo", Toast.LENGTH_SHORT).show();
+                                selected = selectedPosition;
+                                if(selected < 0){
+                                    Toast.makeText(context, "No Image selected", Toast.LENGTH_SHORT).show();
+                                    return true;
+                                }
+                                if(Tab1Fragment.data.albums.size() <= 1){
+                                    Toast.makeText(context, "Only one album available", Toast.LENGTH_SHORT).show();
+                                    return true;
+                                }
+                                lister = new ArrayList<String>();
+                                for(AlbumData a: Tab1Fragment.data.albums.values()){
+                                    if(!a.name.equals(AlbumActivity.albumData.name)){
+                                        lister.add(a.name);
+                                    }
+                                }
+                                final ArrayAdapter<String> adp2 = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, lister);
+                                final Spinner spin = new Spinner(context);
+                                spin.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+                                spin.setAdapter(adp2);
+
+                                new AlertDialog.Builder(context)
+                                        .setTitle("Album Name?")
+                                        .setMessage("Name:")
+                                        .setView(spin)
+                                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                //User says yes to create
+                                                String album = spin.getSelectedItem().toString();
+                                                PhotoData p = AlbumActivity.albumData.photos.get(selectedPosition);
+                                                Tab1Fragment.data.albums.get(album).photos.add(p);
+                                                Toast.makeText(context, "Copied photo to album: " + album, Toast.LENGTH_SHORT).show();
+
+                                            }
+                                        })
+                                        .setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                //User says no to this is not the address
+
+                                            }
+                                        })
+                                        .create()
+                                        .show();
                                 return true;
                             default:
                                 return false;
 
                         }
+                        return true;
                     }
+
                 });
                         popup.show();
                         return true;
