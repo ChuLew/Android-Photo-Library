@@ -66,6 +66,7 @@
     <TextView
         android:id="@+id/textView12"
         android:layout_width="wrap_content"
+        android:textColor="@color/colorPrimary"
         android:layout_height="wrap_content"
         android:layout_below="@id/textView11"
         android:text="Bottom navigation will allow you to copy, move, or add Tag" />
