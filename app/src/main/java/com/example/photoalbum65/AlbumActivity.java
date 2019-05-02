@@ -67,6 +67,11 @@ public class AlbumActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    protected void onStart(){
+        super.onStart();
+        recyclerViewAdapter.notifyDataSetChanged();
+    }
     protected void onActivityResult(int requestCode, int resultCode, Intent intent){
         if(intent == null) return;
         switch (requestCode) {
@@ -126,6 +131,7 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
         PhotoViewHolder pvh = new PhotoViewHolder(v);
         return pvh;
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder albumViewHolder, final int i) {
@@ -213,12 +219,6 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
                                         .show();
                                 return true;
                             case R.id.copyphoto:
-                                Toast.makeText(context, "copied photo", Toast.LENGTH_SHORT).show();
-                                selected = selectedPosition;
-                                if(selected < 0){
-                                    Toast.makeText(context, "No Image selected", Toast.LENGTH_SHORT).show();
-                                    return true;
-                                }
                                 if(Tab1Fragment.data.albums.size() <= 1){
                                     Toast.makeText(context, "Only one album available", Toast.LENGTH_SHORT).show();
                                     return true;
@@ -241,7 +241,6 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
                                         .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                //User says yes to create
                                                 String album = spin.getSelectedItem().toString();
                                                 PhotoData p = AlbumActivity.albumData.photos.get(selectedPosition);
                                                 Tab1Fragment.data.albums.get(album).photos.add(p);
@@ -252,8 +251,6 @@ class RVPhotoAdapter extends RecyclerView.Adapter<RVPhotoAdapter.PhotoViewHolder
                                         .setNegativeButton("Exit", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                //User says no to this is not the address
-
                                             }
                                         })
                                         .create()

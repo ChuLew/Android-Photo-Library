@@ -1,5 +1,6 @@
 package com.example.photoalbum65;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -37,10 +38,11 @@ public class PhoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pho);
+        List<PhotoData> photoData = AlbumActivity.albumData.photos;
         viewPager =  findViewById(R.id.view_pager);
         slideAdapter = new SlideAdapter(this);
         viewPager.setAdapter(slideAdapter);
-        int index = getIntent().getIntExtra("index",0);
+        final int index = getIntent().getIntExtra("index",0);
         viewPager.setCurrentItem(index);
         BottomNavigationView navigation = findViewById(R.id.navigation);
         Intent intent = getIntent();
@@ -59,34 +61,69 @@ public class PhoActivity extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     case R.id.action_copy:
-                        int selected = selectedPosition;
+                        List<String> lister = new ArrayList<String>();
+                        if(Tab1Fragment.data.albums.size() <= 1){
+                            Toast.makeText(getBaseContext(), "Only one album available", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        lister = new ArrayList<String>();
+                        for(AlbumData a: Tab1Fragment.data.albums.values()){
+                            if(!a.name.equals(AlbumActivity.albumData.name)){
+                                lister.add(a.name);
+                            }
+                        }
+                        final ArrayAdapter<String> adp2 = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_spinner_item, lister);
+                        final Spinner spin = new Spinner(getBaseContext());
+                        spin.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT));
+                        spin.setAdapter(adp2);
+
+                        new AlertDialog.Builder(PhoActivity.this).setTitle("Album You'd like to copy to").setView(spin).setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        String album = spin.getSelectedItem().toString();
+                                        PhotoData p = AlbumActivity.albumData.photos.get(index);
+                                        Tab1Fragment.data.albums.get(album).photos.add(p);
+                                        Toast.makeText(getBaseContext(), "Copied photo to album: " + album, Toast.LENGTH_SHORT).show();
+
+                                    }
+                                })
+                                .setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                    }
+                                })
+                                .create()
+                                .show();
+                        return true;
+                    case R.id.action_move:
+                        int selected = index;
                         if (Tab1Fragment.data.albums.size() <= 1) {
-                            Toast.makeText(context, "Only 1 Album, Cant move Photo to itself!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "Only 1 Album, Cant move Photo to itself!", Toast.LENGTH_SHORT).show();
                             break;
                         }
-                        List<String> lister = new ArrayList<String>();
+                        lister = new ArrayList<String>();
                         for (AlbumData a : Tab1Fragment.data.albums.values()) {
                             if (!a.name.equals(AlbumActivity.albumData.name)) {
                                 lister.add(a.name);
                             }
                         }
-                        final ArrayAdapter<String> adp = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, lister);
-                        final Spinner sp = new Spinner(context);
+                        final ArrayAdapter<String> adp = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_spinner_item, lister);
+                        final Spinner sp = new Spinner(getBaseContext());
                         sp.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                         sp.setAdapter(adp);
 
-                        new AlertDialog.Builder(context).setTitle("Move to which album?").setView(sp).setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        new AlertDialog.Builder(PhoActivity.this).setTitle("Move to which album?").setView(sp).setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 String album = sp.getSelectedItem().toString();
-                                PhotoData p = AlbumActivity.albumData.photos.get(selectedPosition);
+                                PhotoData p = AlbumActivity.albumData.photos.get(index);
                                 Tab1Fragment.data.albums.get(album).photos.add(p);
-                                int selected = selectedPosition;
+                                int selected = index;
                                 AlbumActivity.albumData.photos.remove(selected);
-                                photoData = AlbumActivity.albumData.photos;
-                                notifyDataSetChanged();
-                                selectedPosition = -1;
-                                Toast.makeText(context, "Moved photo to album: " + album, Toast.LENGTH_SHORT).show();
+                                onBackPressed();
+
+                                Toast.makeText(PhoActivity.this, "Moved photo to album: " + album, Toast.LENGTH_SHORT).show();
+
                             }
                         })
                                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -97,15 +134,11 @@ public class PhoActivity extends AppCompatActivity {
                                 .create()
                                 .show();
                         break;
-                    case R.id.action_move:
-                        break;
                 }
                 return true;
             }
         });
     }
-    //i was thinking on copy Photo i can display album and onclick of selected album we can copy album to that album
-    // i was thinking same for movePhoto
 
 }
 class SlideAdapter extends PagerAdapter {
