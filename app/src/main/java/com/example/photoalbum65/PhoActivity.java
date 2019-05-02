@@ -84,7 +84,6 @@ public class PhoActivity extends AppCompatActivity {
                                         PhotoData p = AlbumActivity.albumData.photos.get(index);
                                         Tab1Fragment.data.albums.get(album).photos.add(p);
                                         Toast.makeText(getBaseContext(), "Copied photo to album: " + album, Toast.LENGTH_SHORT).show();
-
                                     }
                                 })
                                 .setNegativeButton("Exit", new DialogInterface.OnClickListener() {

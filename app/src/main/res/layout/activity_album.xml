@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AlbumActivity">
+    tools:context=".AlbumActivity"
+    >
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -15,7 +16,8 @@
         app:layout_constraintHorizontal_bias="0.995"
         app:layout_constraintStart_toEndOf="@+id/fab"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@null"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

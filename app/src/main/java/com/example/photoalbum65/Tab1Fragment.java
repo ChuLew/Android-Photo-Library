@@ -84,6 +84,7 @@ public class Tab1Fragment extends Fragment {
             data = new UserData("Current User");
         }
         rv = (RecyclerView) view.findViewById(R.id.rv);
+        rv.setBackgroundColor(Color.TRANSPARENT);
         rv.setLayoutManager(new LinearLayoutManager(context));
         adapter = new RVAlbumAdapter(context);
         rv.setAdapter(adapter);

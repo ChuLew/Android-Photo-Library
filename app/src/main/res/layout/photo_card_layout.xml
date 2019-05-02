@@ -6,15 +6,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/cv"
+        android:text="80% Transparent Background"
+        android:background="@null"
         >
-
-
-
         <ImageView
             android:padding="2dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/thumb_photo"
+            android:background="@null"
             android:layout_gravity="top"/>
 
 
