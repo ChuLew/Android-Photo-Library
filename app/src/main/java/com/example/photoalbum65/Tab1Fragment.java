@@ -222,7 +222,7 @@ class RVAlbumAdapter extends RecyclerView.Adapter<RVAlbumAdapter.AlbumViewHolder
 
                 PopupMenu popup = new PopupMenu(context,v);
                 //Inflating the Popup using xml file
-                popup.getMenuInflater().inflate(R.menu.poupup_menu, popup.getMenu());
+                popup.getMenuInflater().inflate(R.menu.tab1fragmenu, popup.getMenu());
 
                 //registering popup with OnMenuItemClickListener
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
